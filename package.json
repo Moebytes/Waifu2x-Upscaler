@@ -1,22 +1,13 @@
 {
   "name": "waifu2x-gui",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A gui app that upscales anime-styled images with waifu2x",
   "main": "dist/main.js",
   "scripts": {
     "start": "npm run clean && webpack && cross-env DEVELOPMENT=true electron dist/main.js",
-    "start-fast": "electron dist/main.js",
     "clean": "del-cli ./dist",
     "build": "npm run clean ./build && webpack && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -p never",
-    "build-fast": "webpack && electron-builder -p never",
-    "rebuild": "electron-rebuild -f -w @napi-rs/canvas",
-    "release": "npm run release:mac && npm run release:linux && npm run release:win",
-    "release:mac": "npm run clean ./build && webpack && npm run sharp:mac && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -m -p always",
-    "release:win": "npm run clean ./build && webpack && npm run sharp:win && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -w -p always",
-    "release:linux": "npm run clean ./build && webpack && npm run sharp:linux && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -l -p always",
-    "sharp:mac": "del-cli ./node_modules/sharp && npm install --platform=darwin --arch=arm64 sharp",
-    "sharp:win": "del-cli ./node_modules/sharp && npm install --platform=win32 --arch=x64 sharp",
-    "sharp:linux": "del-cli ./node_modules/sharp && npm install --platform=linux --arch=x64 sharp"
+    "rebuild": "electron-rebuild -f -w @napi-rs/canvas"
   },
   "keywords": [
     "waifu2x",
@@ -109,7 +100,6 @@
     "@electron/rebuild": "^3.6.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@types/sharp": "^0.31.1",
     "copy-webpack-plugin": "^9.1.0",
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.1",
@@ -142,7 +132,7 @@
     "react-dropzone": "^11.3.0",
     "react-reorder": "^3.0.0-alpha.7",
     "shade-blend-color": "^1.0.0",
-    "sharp": "^0.33.5",
+    "sharp": "^0.34.5",
     "waifu2x": "^1.4.6"
   }
 }
