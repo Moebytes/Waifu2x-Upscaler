@@ -71,8 +71,8 @@ jobs:
         with:
           name: ${{env.ARTIFACT_PREFIX}}-mac
           path: |
-            build/${{env.APP_NAME}}-*-arm64.dmg
-            build/${{env.APP_NAME}}-*-arm64.dmg.blockmap
+            build/${{env.APP_NAME}}-*.dmg
+            build/${{env.APP_NAME}}-*.dmg.blockmap
             build/latest-mac.yml
 
       - name: Upload Windows
@@ -81,8 +81,8 @@ jobs:
         with:
           name: ${{env.ARTIFACT_PREFIX}}-win
           path: |
-            build/${{env.APP_NAME}}-*-x64.exe
-            build/${{env.APP_NAME}}-*-x64.exe.blockmap
+            build/${{env.APP_NAME}}-*.exe
+            build/${{env.APP_NAME}}-*.exe.blockmap
             build/latest.yml
 
       - name: Upload Linux
@@ -91,6 +91,6 @@ jobs:
         with:
           name: ${{env.ARTIFACT_PREFIX}}-linux
           path: |
-            build/${{env.APP_NAME}}-*-x64.AppImage
-            build/${{env.APP_NAME}}-*-x64.AppImage.blockmap
+            build/${{env.APP_NAME}}-*.AppImage
+            build/${{env.APP_NAME}}-*.AppImage.blockmap
             build/latest-linux.yml

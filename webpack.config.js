@@ -14,7 +14,8 @@ module.exports = [
     mode: "production",
     node: {__dirname: false},
     output: {filename: "renderer.js", path: path.resolve(__dirname, "./dist"), publicPath: "./"},
-    resolve: {extensions: [".js", ".jsx", ".ts", ".tsx"], mainFields: ["main", "module", "browser"], alias: {"react-dom$": "react-dom/profiling", "scheduler/tracing": "scheduler/tracing-profiling"}},
+    resolve: {extensions: [".js", ".jsx", ".ts", ".tsx"], mainFields: ["main", "module", "browser"], alias: {"react-dom$": "react-dom/profiling", "scheduler/tracing": "scheduler/tracing-profiling"},
+    fallback: {canvas: false}},
     optimization: {minimize: false, minimizer: [new TerserJSPlugin({extractComments: false})], moduleIds: "named"},
     module: {
       rules: [
@@ -40,7 +41,8 @@ module.exports = [
     node: {__dirname: false},
     externals: {"sharp": "commonjs sharp", "@napi-rs/canvas": "commonjs @napi-rs/canvas"},
     output: {filename: "main.js", path: path.resolve(__dirname, "./dist")},
-    resolve: {extensions: [".js", ".jsx", ".ts", ".tsx"], alias: {"react-dom$": "react-dom/profiling", "scheduler/tracing": "scheduler/tracing-profiling"}},
+    resolve: {extensions: [".js", ".jsx", ".ts", ".tsx"], alias: {"react-dom$": "react-dom/profiling", "scheduler/tracing": "scheduler/tracing-profiling"}, 
+    fallback: {canvas: false}},
     optimization: {minimize: false, minimizer: [new TerserJSPlugin({extractComments: false})], moduleIds: "named"},
     module: {
       rules: [
