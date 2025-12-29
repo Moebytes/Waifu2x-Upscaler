@@ -19,6 +19,8 @@ import lightButton from "../assets/icons/light.png"
 import lightButtonHover from "../assets/icons/light-hover.png"
 import darkButton from "../assets/icons/dark.png"
 import darkButtonHover from "../assets/icons/dark-hover.png"
+import quickButtonHover from "../assets/icons/quick-hover.png"
+import quickButton from "../assets/icons/quick.png"
 import "../styles/titlebar.less"
 
 const TitleBar: React.FunctionComponent = (props) => {
@@ -29,6 +31,7 @@ const TitleBar: React.FunctionComponent = (props) => {
     const [hoverReload, setHoverReload] = useState(false)
     const [hoverStar, setHoverStar] = useState(false)
     const [hoverTheme, setHoverTheme] = useState(false)
+    const [hoverQuick, setHoverQuick] = useState(false)
     const [theme, setTheme] = useState("light")
     const [hoverSettings, setHoverSettings] = useState(false)
 
@@ -65,6 +68,10 @@ const TitleBar: React.FunctionComponent = (props) => {
 
     const settings = () => {
         ipcRenderer.invoke("advanced-settings", false)
+    }
+
+    const quickProcess = () => {
+        ipcRenderer.invoke("quick-process", false)
     }
 
     const changeTheme = (value?: string) => {
@@ -122,7 +129,8 @@ const TitleBar: React.FunctionComponent = (props) => {
                         <p><span className="title">Waifu2x GUI v{pack.version}</span></p>
                     </div>
                     <div className="title-bar-buttons">
-                    <img src={hoverTheme ? (theme === "light" ? darkButtonHover : lightButtonHover) : (theme === "light" ? darkButton : lightButton)} height="20" width="20" className="title-bar-button theme-button" onClick={() => changeTheme()} onMouseEnter={() => setHoverTheme(true)} onMouseLeave={() => setHoverTheme(false)}/>
+                        <img src={hoverTheme ? (theme === "light" ? darkButtonHover : lightButtonHover) : (theme === "light" ? darkButton : lightButton)} height="20" width="20" className="title-bar-button theme-button" onClick={() => changeTheme()} onMouseEnter={() => setHoverTheme(true)} onMouseLeave={() => setHoverTheme(false)}/>
+                        <img src={hoverQuick ? quickButtonHover : quickButton} height="20" width="20" className="title-bar-button" onClick={quickProcess} onMouseEnter={() => setHoverQuick(true)} onMouseLeave={() => setHoverQuick(false)}/>
                         <img src={hoverSettings ? settingsButtonHover : settingsButton} height="20" width="20" className="title-bar-button settings-button" onClick={settings} onMouseEnter={() => setHoverSettings(true)} onMouseLeave={() => setHoverSettings(false)}/>
                         <img src={hoverStar ? starButtonHover : starButton} height="20" width="20" className="title-bar-button star-button" onClick={star} onMouseEnter={() => setHoverStar(true)} onMouseLeave={() => setHoverStar(false)}/>
                         <img src={hoverReload ? updateButtonHover : updateButton} height="20" width="20" className="title-bar-button update-button" onClick={update} onMouseEnter={() => setHoverReload(true)} onMouseLeave={() => setHoverReload(false)}/>

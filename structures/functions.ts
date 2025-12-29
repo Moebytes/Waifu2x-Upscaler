@@ -29,11 +29,27 @@ export default class Functions {
         }
     }
 
+    public static isAnimatedPng = (file: string) => {
+        const buffer = fs.readFileSync(file)
+        if (buffer.indexOf("acTL") != -1) {
+            return true
+        } else {
+            return false
+        }
+    }
+
     public static getType = (str: string) => {
         if (str.includes(".pdf")) return "pdf"
         if (str.includes(".webp")) {
             if (Functions.isAnimatedWebp(str)) {
                 return "animated webp"
+            } else {
+                return "image"
+            }
+        }
+        if (str.includes(".png")) {
+            if (Functions.isAnimatedPng(str)) {
+                return "animated png"
             } else {
                 return "image"
             }

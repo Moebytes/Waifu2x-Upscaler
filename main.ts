@@ -54,6 +54,128 @@ const history: Array<{id: number, source: string, dest: string, type: "image" | 
 const active: Array<{id: number, source: string, dest: string, type: "image" | "gif" | "video", action: null | "stop"}> = []
 const queue: Array<{started: boolean, info: any}> = []
 
+
+const quickProcess = async (image: string) => {
+  const resizeImage = async (filepath: string, maxSize: number | {maxWidth: number, maxHeight: number} = 2000) => {
+      let maxWidth = typeof maxSize === "number" ? maxSize : maxSize.maxWidth
+      let maxHeight = typeof maxSize === "number" ? maxSize : maxSize.maxHeight
+      let buffer = new Uint8Array(fs.readFileSync(filepath))
+      const dim = await sharp(buffer).metadata()
+      if (dim.width > maxWidth || dim.height > maxHeight) {
+          buffer = await sharp(buffer)
+          .resize(maxWidth, maxHeight, {fit: "inside"})
+          .toBuffer().then((b) => new Uint8Array(b))
+          fs.writeFileSync(filepath, buffer)
+      }
+      return filepath
+  }
+
+  const isTransparent = async (filepath: string) => {
+        const image = sharp(filepath)
+        const metadata = await image.metadata()
+        if (!metadata.hasAlpha) return false
+
+        const {data, info} = await image.ensureAlpha().raw().toBuffer({resolveWithObject: true})
+
+        let counter = 0
+        for (let i = 3; i < data.length; i += info.channels) {
+            if (data[i] === 0) counter++
+        }
+        return counter > 100000
+    }
+
+    const convertImage = async (filepath: string, format?: string, formatOptions?: any,
+        transparentFormat?: string, transparentFormatOptions?: any) => {
+        let buffer = fs.readFileSync(filepath)
+        let newBuffer = null as unknown as Buffer
+
+        let targetFormat = format
+        let targetOptions = formatOptions
+        if (await isTransparent(filepath)) {
+            if (transparentFormat) {
+                targetFormat = transparentFormat
+                targetOptions = transparentFormatOptions
+            } else if (!format) {
+                targetFormat = "webp"
+                targetOptions = undefined
+            }
+        }
+        if (!targetFormat) targetFormat = "jpg"
+
+        switch(targetFormat) {
+            case "jpg":
+                newBuffer = await sharp(buffer).jpeg(targetOptions ?? {quality: 95, optimiseScans: true}).toBuffer()
+                break
+            case "png":
+                newBuffer = await sharp(buffer).png(targetOptions ?? {compressionLevel: 7}).toBuffer()
+                break
+            case "webp":
+                newBuffer = await sharp(buffer).webp(targetOptions ?? {quality: 90}).toBuffer()
+                break
+            case "avif":
+                newBuffer = await sharp(buffer).avif(targetOptions ?? {quality: 80, effort: 2}).toBuffer()
+                break
+            case "jxl":
+                newBuffer = await sharp(buffer).jxl(targetOptions ?? {quality: 90, effort: 4}).toBuffer()
+                break
+            default:
+                newBuffer = buffer
+        }
+
+        let newFile = `${path.basename(filepath, path.extname(filepath))}.${targetFormat}`
+        const newFilePath = path.join(path.dirname(filepath), newFile)
+        fs.writeFileSync(filepath, newBuffer)
+        fs.renameSync(filepath, newFilePath)
+        return newFilePath
+    }
+
+    const upscaleImage = async (src: string, dest: string, options?: any) => {
+        let target = src
+        let isWebp = path.extname(src) === ".webp"
+        let isAvif = path.extname(src) === ".avif"
+        let isJxl = path.extname(src) === ".jxl"
+        if (isWebp || isAvif || isJxl) {
+            fs.copyFileSync(src, dest)
+            target = await convertImage(dest, "png")
+        }
+
+        let result = await waifu2x.upscaleImage(target, dest, options ?? {rename: "", upscaler: "real-cugan", scale: 4})
+        if (isWebp) {
+            await convertImage(result, "webp")
+        } else if (isAvif) {
+            await convertImage(result, "avif")
+        } else if (isJxl) {
+            await convertImage(result, "jxl")
+        }
+        return dest
+    }
+
+    const compressedPath = path.join(path.dirname(image), `${path.basename(image, path.extname(image))}_1x${path.extname(image)}`)
+    const upscaledPath = path.join(path.dirname(image), `${path.basename(image, path.extname(image))}_2x${path.extname(image)}`)
+
+    fs.copyFileSync(image, compressedPath)
+    await resizeImage(compressedPath)
+    const img = await convertImage(compressedPath)
+
+    await upscaleImage(img, upscaledPath)
+    let res = await convertImage(upscaledPath, "avif")
+
+    shell.showItemInFolder(res)
+}
+
+ipcMain.handle("quick-process", async () => {
+  if (!window) return
+  const files = await dialog.showOpenDialog(window, {
+    filters: [
+      {name: "All Files", extensions: ["*"]},
+      {name: "Images", extensions: ["png", "jpg", "jpeg", "webp", "avif", "jxl"]},
+    ],
+    properties: ["openFile"]
+  })
+  const file = files.filePaths[0]
+  quickProcess(file)
+})
+
 ipcMain.handle("update-color", (event, color: string) => {
   window?.webContents.send("update-color", color)
 })
@@ -340,6 +462,8 @@ const upscale = async (info: any) => {
       output = await waifu2x.upscaleGIF(info.source, dest, options, progress)
     } else if (info.type === "animated webp") {
       output = await waifu2x.upscaleAnimatedWebp(info.source, dest, options, progress)
+    } else if (info.type === "animated png") {
+      output = await waifu2x.upscaleAPNG(info.source, dest, options, progress)
     } else if (info.type === "video") {
       output = await waifu2x.upscaleVideo(info.source, dest, options, progress, interlopProgress)
     } else if (info.type === "pdf") {

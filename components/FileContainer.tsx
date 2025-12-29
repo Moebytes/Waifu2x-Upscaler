@@ -29,7 +29,7 @@ interface FileContainerProps {
     id: number
     remove: (id: number) => void
     setStart: (id: number) => void
-    type: "image" | "gif" | "animated webp" | "video" | "pdf"
+    type: "image" | "gif" | "animated webp" | "animated png" | "video" | "pdf"
     source: string
     height: number
     width: number
