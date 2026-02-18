@@ -1,6 +1,6 @@
 ## Waifu2x GUI
 
-<img src="assets/example.png">
+<img src="assets/images/readme.png">
 
 This is a GUI app that can upscale anime-styled images, gifs, and videos using waifu2x, Real-ESRGAN, or Real-CUGAN. It aims to be simple to use, but
 you can access more advanced settings in the top bar.
@@ -40,6 +40,12 @@ still have trouble, try installing the dependencies:
 ```
 pip3 install torch torchvision opencv-python Pillow numpy spandrel --compile --force-reinstall
 ```
+
+### Design
+
+Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaVu/Waifu2x-GUI
+
+*New design is wip
 
 ### Installation
 
