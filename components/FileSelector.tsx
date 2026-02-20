@@ -1,4 +1,3 @@
-import {ipcRenderer} from "electron"
 import React, {useEffect, useState} from "react"
 import {useDropzone} from "react-dropzone"
 import fileSelectorBG from "../assets/icons/fileSelector-bg.png"
@@ -7,8 +6,7 @@ import fileSelectorText from "../assets/icons/fileSelector-text.png"
 import fileSelectorBGDark from "../assets/icons/fileSelector-bg-dark.png"
 import fileSelectorTextDragDark from "../assets/icons/fileSelector-text-drag-dark.png"
 import fileSelectorTextDark from "../assets/icons/fileSelector-text-dark.png"
-import functions from "../structures/functions"
-import "../styles/fileselector.less"
+import "./styles/fileselector.less"
 
 const FileSelector: React.FunctionComponent = (props) => {
     const [hover, setHover] = useState(false)
@@ -19,47 +17,46 @@ const FileSelector: React.FunctionComponent = (props) => {
     useEffect(() => {
         const addFile = (event: any, file: string, pos: number) => {
             setID((prev) => {
-                ipcRenderer.invoke("add-file-id", file, pos, prev)
+                window.ipcRenderer.invoke("add-file-id", file, pos, prev)
                 return prev + 1
             })
         }
         const dragOver = () => {
-            functions.logoDrag(false)
             setDrag(true)
         }
         const dragLeave = () => {
-            functions.logoDrag(true)
             setDrag(false)
         }
         const updateColor = (event: any, color: string) => {
             setColor(color)
         }
-        ipcRenderer.on("add-file", addFile)
-        ipcRenderer.on("update-color", updateColor)
+        window.ipcRenderer.on("add-file", addFile)
+        window.ipcRenderer.on("update-color", updateColor)
         document.addEventListener("dragover", dragOver)
         document.addEventListener("dragleave", dragLeave)
         document.addEventListener("drop", dragLeave)
         return () => {
-            ipcRenderer.removeListener("add-file", addFile)
-            ipcRenderer.removeListener("update-color", updateColor)
+            window.ipcRenderer.removeListener("add-file", addFile)
+            window.ipcRenderer.removeListener("update-color", updateColor)
             document.removeEventListener("dragover", dragOver)
             document.removeEventListener("dragleave", dragLeave)
             document.removeEventListener("drop", dragLeave)
         }
     }, [])
 
-    const onDrop = (files: any) => {
+    const onDrop = async (files: any) => {
         files = files.map((f: any) => f.path)
         if (files[0]) {
             const identifers = []
             let counter = id
             for (let i = 0; i < files.length; i++) {
-                if (!functions.getType(files[i])) continue
+                const type = await window.ipcRenderer.invoke("get-type", files[i])
+                if (!type) continue
                 identifers.push(counter)
                 counter += 1
                 setID((prev) => prev + 1)
             }
-            ipcRenderer.invoke("add-files", files, identifers)
+            window.ipcRenderer.invoke("add-files", files, identifers)
         }
     }
 
@@ -67,17 +64,18 @@ const FileSelector: React.FunctionComponent = (props) => {
 
     const selectFiles = async () => {
         setHover(false)
-        const files = await ipcRenderer.invoke("select-files")
+        const files = await window.ipcRenderer.invoke("select-files")
         if (files[0]) {
             const identifers = []
             let counter = id
             for (let i = 0; i < files.length; i++) {
-                if (!functions.getType(files[i])) continue
+                const type = await window.ipcRenderer.invoke("get-type", files[i])
+                if (!type) continue
                 identifers.push(counter)
                 counter += 1
                 setID((prev) => prev + 1)
             }
-            ipcRenderer.invoke("add-files", files, identifers)
+            window.ipcRenderer.invoke("add-files", files, identifers)
         }
     }
 

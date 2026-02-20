@@ -1,0 +1,92 @@
+@import "../../index.less";
+
+.title-bar {
+    display: flex;
+    padding: 18px 15px;
+    align-items: center;
+    user-select: none;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    height: @title-bar-height;
+    background-color: var(--navColor);
+    z-index: 1000;
+}
+
+.title-bar-drag-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.title-group-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
+
+.title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.title {
+    color: var(--iconColor);
+    font-size: 18px;
+    font-family: "GenEi M Gothic v2";
+}
+
+.app-icon {
+    width: auto;
+    height: 25px;
+    color: var(--waifu2xColor);
+}
+
+.title-mac-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-mac-button {
+    width: auto;
+    height: 14px;
+}
+
+.title-win-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    margin-right: 5px;
+}
+
+.title-win-button {
+    width: auto;
+    height: 16px;
+    &:hover {
+        filter: brightness(120%);
+    }
+}
+
+.title-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 17px;
+}
+
+.title-bar-button {
+    width: auto;
+    height: 20px;
+    color: var(--iconColor);
+    &:hover {
+        filter: brightness(120%);
+    }
+}

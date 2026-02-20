@@ -1,34 +1,30 @@
-import {ipcRenderer} from "electron"
-import React, {useContext, useEffect, useState} from "react"
-import logo from "../assets/icons/logo.png"
-import {PreviewContext} from "../renderer"
-import functions from "../structures/functions"
-import "../styles/preview.less"
+import React, {useEffect, useState} from "react"
+import {useActionSelector, useActionActions} from "../store"
+import "./styles/preview.less"
 
 const Preview: React.FunctionComponent = (props) => {
+    const {previewVisible} = useActionSelector()
+    const {setPreviewVisible} = useActionActions()
     const [src, setSrc] = useState("")
     const [type, setType] = useState("image")
-    const {previewVisible, setPreviewVisible} = useContext(PreviewContext)
 
     useEffect(() => {
         const preview = (event: any, image: string, type: "image" | "gif" | "video" | "pdf") => {
             if (image) {
-                functions.logoDrag(false)
                 setSrc(image)
                 setType(type)
                 setPreviewVisible(true)
             }
         }
         window.addEventListener("click", close)
-        ipcRenderer.on("preview", preview)
+        window.ipcRenderer.on("preview", preview)
         return () => {
-            ipcRenderer.removeListener("preview", preview)
+            window.ipcRenderer.removeListener("preview", preview)
             window.removeEventListener("click", close)
         }
     }, [])
 
     const close = () => {
-        functions.logoDrag(true)
         setPreviewVisible(false)
     }
 

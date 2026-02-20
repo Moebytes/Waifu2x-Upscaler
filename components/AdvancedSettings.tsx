@@ -1,62 +1,45 @@
-import {ipcRenderer} from "electron"
-import React, {useContext, useEffect, useRef, useState} from "react"
+import React, {useEffect, useState} from "react"
+import {useUpscaleSelector, useUpscaleActions, useActionSelector, useActionActions} from "../store"
 import checkboxChecked from "../assets/icons/checkbox2-checked.png"
 import checkbox from "../assets/icons/checkbox2.png"
 import {Dropdown, DropdownButton} from "react-bootstrap"
-import {FramerateContext, GIFQualityContext, SDColorSpaceContext, CompressContext, FPSMultiplierContext,
-GIFTransparencyContext, JPGQualityContext, ModeContext, NoiseContext, OriginalFramerateContext, ParallelFramesContext, UpscalerContext,
-PitchContext, PNGCompressionContext, RenameContext, ReverseContext, ScaleContext, SpeedContext, ThreadsContext, VideoQualityContext, QueueContext,
-AdvSettingsContext, PNGFramesContext, PDFDownscaleContext, PythonDownscaleContext} from "../renderer"
-import functions from "../structures/functions"
 import path from "path"
-import "../styles/advancedsettings.less"
+import "./styles/advancedsettings.less"
 
 const AdvancedSettings: React.FunctionComponent = (props) => {
-    const {originalFramerate, setOriginalFramerate} = useContext(OriginalFramerateContext)
-    const {framerate, setFramerate} = useContext(FramerateContext)
-    const {videoQuality, setVideoQuality} = useContext(VideoQualityContext)
-    const {gifQuality, setGIFQuality} = useContext(GIFQualityContext)
-    const {pngCompression, setPNGCompression} = useContext(PNGCompressionContext)
-    const {jpgQuality, setJPGQuality} = useContext(JPGQualityContext)
-    const {parallelFrames, setParallelFrames} = useContext(ParallelFramesContext)
-    const {threads, setThreads} = useContext(ThreadsContext)
-    const {rename, setRename} = useContext(RenameContext)
-    const {pitch, setPitch} = useContext(PitchContext)
-    const {sdColorSpace, setSDColorSpace} = useContext(SDColorSpaceContext)
-    const {noise, setNoise} = useContext(NoiseContext)
-    const {scale, setScale} = useContext(ScaleContext)
-    const {speed, setSpeed} = useContext(SpeedContext)
-    const {reverse, setReverse} = useContext(ReverseContext)
-    const {mode, setMode} = useContext(ModeContext)
-    const {gifTransparency, setGIFTransparency} = useContext(GIFTransparencyContext)
-    const {queue, setQueue} = useContext(QueueContext)
-    const {upscaler, setUpscaler} = useContext(UpscalerContext)
-    const {compress, setCompress} = useContext(CompressContext)
-    const {advSettings, setAdvSettings} = useContext(AdvSettingsContext)
-    const {fpsMultiplier, setFPSMultiplier} = useContext(FPSMultiplierContext)
-    const {pngFrames, setPNGFrames} = useContext(PNGFramesContext)
-    const {pdfDownscale, setPDFDownscale} = useContext(PDFDownscaleContext)
-    const {pythonDownscale, setPythonDownscale} = useContext(PythonDownscaleContext)
+    const {advSettings} = useActionSelector()
+    const {setAdvSettings} = useActionActions()
+    const {framerate, originalFramerate, videoQuality, gifQuality, pngCompression,
+        jpgQuality, parallelFrames, threads, rename, pitch, sdColorSpace, gifTransparency,
+        queue, upscaler, compress, pngFrames, pdfDownscale, pythonDownscale
+    } = useUpscaleSelector()
+    const {setFramerate, setOriginalFramerate, setVideoQuality, setGIFQuality, setPNGCompression,
+        setJPGQuality, setParallelFrames, setThreads, setRename, setPitch, setSDColorSpace,
+        setNoise, setScale, setSpeed, setReverse, setMode, setGIFTransparency, setQueue,
+        setUpscaler, setCompress, setFPSMultiplier, setPNGFrames, setPDFDownscale,
+        setPythonDownscale
+    } = useUpscaleActions()
+
     const [pythonModels, setPythonModels] = useState([])
 
     useEffect(() => {
         const showSettingsDialog = (event: any, update: any) => {
-            setAdvSettings((prev: any) => !prev)
+            setAdvSettings(!advSettings)
         }
         const closeAllDialogs = (event: any, ignore: any) => {
             if (ignore !== "settings") setAdvSettings(false)
         }
-        ipcRenderer.on("show-settings-dialog", showSettingsDialog)
-        ipcRenderer.on("close-all-dialogs", closeAllDialogs)
+        window.ipcRenderer.on("show-settings-dialog", showSettingsDialog)
+        window.ipcRenderer.on("close-all-dialogs", closeAllDialogs)
         initSettings()
         return () => {
-            ipcRenderer.removeListener("show-settings-dialog", showSettingsDialog)
-            ipcRenderer.removeListener("close-all-dialogs", closeAllDialogs)
+            window.ipcRenderer.removeListener("show-settings-dialog", showSettingsDialog)
+            window.ipcRenderer.removeListener("close-all-dialogs", closeAllDialogs)
         }
     }, [])
 
     const initSettings = async () => {
-        const settings = await ipcRenderer.invoke("init-settings")
+        const settings = await window.ipcRenderer.invoke("init-settings")
         if (settings) {
             setRename(settings.rename)
             setOriginalFramerate(settings.originalFramerate)
@@ -83,18 +66,16 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
             setPDFDownscale(settings.pdfDownscale)
             setPythonDownscale(settings.pythonDownscale)
         }
-        const pythonModels = await ipcRenderer.invoke("get-python-models")
+        const pythonModels = await window.ipcRenderer.invoke("get-python-models")
         if (pythonModels.length) setPythonModels(pythonModels)
     }
 
     useEffect(() => {
-        ipcRenderer.invoke("store-settings", {framerate, pitch, rename, originalFramerate, videoQuality, gifQuality, gifTransparency, 
+        window.ipcRenderer.invoke("store-settings", {framerate, pitch, rename, originalFramerate, videoQuality, gifQuality, gifTransparency, 
         pngCompression, jpgQuality, parallelFrames, threads, queue, sdColorSpace, upscaler, compress, pngFrames, pdfDownscale, pythonDownscale})
-        functions.logoDrag(!advSettings)
     })
 
     const ok = () => {
-        functions.logoDrag(true)
         setAdvSettings(false)
     }
 
@@ -102,56 +83,33 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
         setRename("2x")
         setOriginalFramerate(true)
         setFramerate(24)
-        setVideoQuality(16)
+        setVideoQuality("16")
         setGIFTransparency(true)
-        setGIFQuality(10)
-        setPNGCompression(3)
-        setJPGQuality(95)
-        setParallelFrames(2)
-        setThreads(4)
-        setNoise(2)
-        setScale(2)
-        setSpeed(1)
+        setGIFQuality("10")
+        setPNGCompression("3")
+        setJPGQuality("95")
+        setParallelFrames("2")
+        setThreads("4")
+        setNoise("2")
+        setScale("2")
+        setSpeed("1")
         setReverse(false)
         setMode("noise-scale")
         setFPSMultiplier(1)
         setPitch(true)
-        setQueue(1)
+        setQueue("1")
         setSDColorSpace(true)
         setUpscaler("waifu2x")
         setCompress(true)
         setPNGFrames(false)
-        setPDFDownscale(0)
-        setPythonDownscale(0)
+        setPDFDownscale("0")
+        setPythonDownscale("0")
     }
 
     const changeRename = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value
         if (value.length > 10) return
         setRename(value)
-    }
-
-    const changeFramerate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value
-        if (value.replace(".", "").length > 4) return
-        if (Number.isNaN(Number(value))) return
-        setFramerate(value)
-    }
-
-    const changeFramerateKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "ArrowUp") {
-            setFramerate((prev: any) => {
-                if (Number(prev) + 1 > 9999) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) + 1).toFixed(functions.countDecimals(Number(prev), 2))
-                return Number(prev) + 1
-            })
-        } else if (event.key === "ArrowDown") {
-            setFramerate((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) - 1).toFixed(functions.countDecimals(Number(prev), 2))
-                return Number(prev) - 1
-            })
-        }
     }
 
     const changeVideoQuality = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,15 +123,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changeVideoQualityKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setVideoQuality((prev: any) => {
-                if (Number(prev) + 1 > 51) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewQuality = () => {
+                if (Number(videoQuality) + 1 > 51) return Number(videoQuality)
+                return Number(videoQuality) + 1
+            }
+            setVideoQuality(String(getNewQuality()))
         } else if (event.key === "ArrowDown") {
-            setVideoQuality((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewQuality = () => {
+                if (Number(videoQuality) - 1 < 0) return Number(videoQuality)
+                return Number(videoQuality) - 1
+            }
+            setVideoQuality(String(getNewQuality()))
         }
     }
 
@@ -187,15 +147,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changeGIFQualityKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setGIFQuality((prev: any) => {
-                if (Number(prev) + 1 > 999) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewQuality = () => {
+                if (Number(gifQuality) + 1 > 999) return Number(gifQuality)
+                return Number(gifQuality) + 1
+            }
+            setGIFQuality(String(getNewQuality()))
         } else if (event.key === "ArrowDown") {
-            setGIFQuality((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewQuality = () => {
+                if (Number(gifQuality) - 1 < 0) return Number(gifQuality)
+                return Number(gifQuality) - 1
+            }
+            setGIFQuality(String(getNewQuality()))
         }
     }
 
@@ -210,15 +172,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changePNGCompressionKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setPNGCompression((prev: any) => {
-                if (Number(prev) + 1 > 9) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewCompression = () => {
+                if (Number(pngCompression) + 1 > 9) return Number(pngCompression)
+                return Number(pngCompression) + 1
+            }
+            setPNGCompression(String(getNewCompression()))
         } else if (event.key === "ArrowDown") {
-            setPNGCompression((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewCompression = () => {
+                if (Number(pngCompression) - 1 < 0) return Number(pngCompression)
+                return Number(pngCompression) - 1
+            }
+            setPNGCompression(String(getNewCompression()))
         }
     }
 
@@ -233,15 +197,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changeJPGQualityKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setJPGQuality((prev: any) => {
-                if (Number(prev) + 1 > 101) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewQuality = () => {
+                if (Number(jpgQuality) + 1 > 101) return Number(jpgQuality)
+                return Number(jpgQuality) + 1
+            }
+            setJPGQuality(String(getNewQuality()))
         } else if (event.key === "ArrowDown") {
-            setJPGQuality((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewQuality = () => {
+                if (Number(jpgQuality) - 1 < 0) return Number(jpgQuality)
+                return Number(jpgQuality) - 1
+            }
+            setJPGQuality(String(getNewQuality()))
         }
     }
 
@@ -254,14 +220,16 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changePDFDownscaleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setPDFDownscale((prev: any) => {
-                return Number(prev) + 100
-            })
+            const getNewDownscale = () => {
+                return Number(pdfDownscale) + 100
+            }
+            setPDFDownscale(String(getNewDownscale()))
         } else if (event.key === "ArrowDown") {
-            setPDFDownscale((prev: any) => {
-                if (Number(prev) - 100 < 0) return Number(prev)
-                return Number(prev) - 100
-            })
+            const getNewDownscale = () => {
+                if (Number(pdfDownscale) - 100 < 0) return Number(pdfDownscale)
+                return Number(pdfDownscale) - 100
+            }
+            setPDFDownscale(String(getNewDownscale()))
         }
     }
 
@@ -274,14 +242,16 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changePythonDownscaleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setPythonDownscale((prev: any) => {
-                return Number(prev) + 100
-            })
+            const getNewDownscale = () => {
+                return Number(pythonDownscale) + 100
+            }
+            setPythonDownscale(String(getNewDownscale()))
         } else if (event.key === "ArrowDown") {
-            setPythonDownscale((prev: any) => {
-                if (Number(prev) - 100 < 0) return Number(prev)
-                return Number(prev) - 100
-            })
+            const getNewDownscale = () => {
+                if (Number(pythonDownscale) - 100 < 0) return Number(pythonDownscale)
+                return Number(pythonDownscale) - 100
+            }
+            setPythonDownscale(String(getNewDownscale()))
         }
     }
 
@@ -295,15 +265,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changeParallelFramesKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setParallelFrames((prev: any) => {
-                if (Number(prev) + 1 > 999) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewFrames = () => {
+                if (Number(parallelFrames) + 1 > 999) return Number(parallelFrames)
+                return Number(parallelFrames) + 1
+            }
+            setParallelFrames(String(getNewFrames()))
         } else if (event.key === "ArrowDown") {
-            setParallelFrames((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewFrames = () => {
+                if (Number(parallelFrames) - 1 < 0) return Number(parallelFrames)
+                return Number(parallelFrames) - 1
+            }
+            setParallelFrames(String(getNewFrames()))
         }
     }
 
@@ -317,15 +289,17 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
 
     const changeThreadsKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setThreads((prev: any) => {
-                if (Number(prev) + 1 > 99) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewThreads = () => {
+                if (Number(threads) + 1 > 99) return Number(threads)
+                return Number(threads) + 1
+            }
+            setThreads(String(getNewThreads()))
         } else if (event.key === "ArrowDown") {
-            setThreads((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewThreads = () => {
+                if (Number(threads) - 1 < 0) return Number(threads)
+                return Number(threads) - 1
+            }
+            setThreads(String(getNewThreads()))
         }
     }
 
@@ -335,25 +309,25 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
         if (value.length > 3) return
         if (Number.isNaN(Number(value))) return
         setQueue(value)
-        ipcRenderer.invoke("update-concurrency", Number(value))
+        window.ipcRenderer.invoke("update-concurrency", Number(value))
     }
 
     const changeQueueKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         let value = queue
         if (event.key === "ArrowUp") {
-            setQueue((prev: any) => {
-                if (Number(prev) + 1 > 999) return Number(prev)
-                value = Number(prev) + 1
-                return value
-            })
+            const getNewQueue = () => {
+                if (Number(queue) + 1 > 999) return Number(queue)
+                return Number(queue) + 1
+            }
+            setQueue(String(getNewQueue()))
         } else if (event.key === "ArrowDown") {
-            setQueue((prev: any) => {
-                if (Number(prev) - 1 < 1) return Number(prev)
-                value = Number(prev) - 1
-                return value
-            })
+            const getNewQueue = () => {
+                if (Number(queue) - 1 < 1) return Number(queue)
+                return Number(queue) - 1
+            }
+            setQueue(String(getNewQueue()))
         }
-        ipcRenderer.invoke("update-concurrency", Number(value))
+        window.ipcRenderer.invoke("update-concurrency", Number(value))
     }
 
     const getUpscaler = () => {
@@ -395,19 +369,13 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                             <p className="settings-text">Rename: </p>
                             <input className="settings-input" type="text" spellCheck="false" value={rename} onChange={changeRename}/>
                         </div>
-                        {/* <div className="settings-row">
-                            <p className="settings-text">Framerate: </p>
-                            <input className="settings-input" type="text" spellCheck="false" value={framerate} onChange={changeFramerate} onKeyDown={changeFramerateKey}/>
-                            <p className="settings-text">Original?</p>
-                            <img src={originalFramerate ? checkboxChecked : checkbox} onClick={() => setOriginalFramerate((prev: boolean) => !prev)} className="settings-checkbox"/>
-                        </div> */}
                         <div className="settings-row">
                             <p className="settings-text">Pitch Audio? </p>
-                            <img src={pitch ? checkboxChecked : checkbox} onClick={() => setPitch((prev: boolean) => !prev)} className="settings-checkbox"/>
+                            <img src={pitch ? checkboxChecked : checkbox} onClick={() => setPitch(!pitch)} className="settings-checkbox"/>
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">SD Colorspace? </p>
-                            <img src={sdColorSpace ? checkboxChecked : checkbox} onClick={() => setSDColorSpace((prev: boolean) => !prev)} className="settings-checkbox"/>
+                            <img src={sdColorSpace ? checkboxChecked : checkbox} onClick={() => setSDColorSpace(!sdColorSpace)} className="settings-checkbox"/>
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">Video Quality: </p>
@@ -415,7 +383,7 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">GIF Transparency? </p>
-                            <img src={gifTransparency ? checkboxChecked : checkbox} onClick={() => setGIFTransparency((prev: boolean) => !prev)} className="settings-checkbox"/>
+                            <img src={gifTransparency ? checkboxChecked : checkbox} onClick={() => setGIFTransparency(!gifTransparency)} className="settings-checkbox"/>
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">GIF Quality: </p>
@@ -431,11 +399,11 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">Compress to JPG? </p>
-                            <img src={compress ? checkboxChecked : checkbox} onClick={() => setCompress((prev: boolean) => !prev)} className="settings-checkbox"/>
+                            <img src={compress ? checkboxChecked : checkbox} onClick={() => setCompress(!compress)} className="settings-checkbox"/>
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">PNG Frames? </p>
-                            <img src={pngFrames ? checkboxChecked : checkbox} onClick={() => setPNGFrames((prev: boolean) => !prev)} className="settings-checkbox"/>
+                            <img src={pngFrames ? checkboxChecked : checkbox} onClick={() => setPNGFrames(!pngFrames)} className="settings-checkbox"/>
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">PDF Downscale: </p>

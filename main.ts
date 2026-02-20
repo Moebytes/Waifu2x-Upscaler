@@ -1,27 +1,28 @@
 import {app, BrowserWindow, dialog, globalShortcut, ipcMain, shell} from "electron"
 import Store from "electron-store"
-import {autoUpdater} from "electron-updater"
-import sharp from "sharp"
+import dragAddon from "electron-click-drag-plugin"
 import fs from "fs"
 import path from "path"
+import sharp from "sharp"
 import process from "process"
 import waifu2x from "waifu2x"
 import imagesMeta from "images-meta"
-import "./dev-app-update.yml"
-import pack from "./package.json"
 import functions from "./structures/functions"
+import mainFunctions from "./structures/mainFunctions"
 
-require("@electron/remote/main").initialize()
 process.setMaxListeners(0)
 let window: Electron.BrowserWindow | null
+
 let ffmpegPath = undefined as any
 if (process.platform === "linux") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg")
 if (process.platform === "darwin") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg.app")
 if (process.platform === "win32") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg.exe")
+
 let modelPath = undefined as any
 if (process.platform === "linux") modelPath = path.join(app.getAppPath(), "../../models")
 if (process.platform === "darwin") modelPath = path.join(app.getAppPath(), "../../models")
 if (process.platform === "win32") modelPath = path.join(app.getAppPath(), "../../models")
+
 let waifu2xPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/waifu2x")
 let esrganPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/real-esrgan")
 let cuganPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/real-cugan")
@@ -29,6 +30,7 @@ let anime4kPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules
 let webpPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/webp")
 let rifePath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/rife-fps/rife")
 let scriptsPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/scripts")
+
 if (process.platform === "win32") {
   waifu2xPath = path.join(app.getAppPath(), "./node_modules/waifu2x/waifu2x")
   esrganPath = path.join(app.getAppPath(), "./node_modules/waifu2x/real-esrgan")
@@ -38,6 +40,7 @@ if (process.platform === "win32") {
   rifePath = path.join(app.getAppPath(), "./node_modules/rife-fps/rife")
   scriptsPath = path.join(app.getAppPath(), "./node_modules/waifu2x/scripts")
 }
+
 if (!fs.existsSync(ffmpegPath)) ffmpegPath = undefined
 if (!fs.existsSync(modelPath)) modelPath = path.join(__dirname, "../models")
 if (!fs.existsSync(waifu2xPath)) waifu2xPath = path.join(__dirname, "../waifu2x")
@@ -47,13 +50,40 @@ if (!fs.existsSync(anime4kPath)) anime4kPath = path.join(__dirname, "../anime4k"
 if (!fs.existsSync(webpPath)) webpPath = path.join(__dirname, "../webp")
 if (!fs.existsSync(scriptsPath)) scriptsPath = path.join(__dirname, "../scripts")
 if (!fs.existsSync(rifePath)) rifePath = path.join(__dirname, "../rife")
-autoUpdater.autoDownload = false
+
 const store = new Store()
 
 const history: Array<{id: number, source: string, dest: string, type: "image" | "gif" | "video"}> = []
 const active: Array<{id: number, source: string, dest: string, type: "image" | "gif" | "video", action: null | "stop"}> = []
 const queue: Array<{started: boolean, info: any}> = []
 
+ipcMain.handle("close", (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win?.close()
+})
+
+ipcMain.handle("minimize", (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win?.minimize()
+})
+
+ipcMain.handle("maximize", (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+
+    if (win.isMaximized()) {
+      win.unmaximize()
+    } else {
+      win.maximize()
+    }
+})
+
+ipcMain.on("moveWindow", () => {
+  const handle = window?.getNativeWindowHandle()
+  if (!handle) return
+  const windowID = process.platform === "linux" ? handle.readUInt32LE(0) : handle
+  dragAddon.startDrag(windowID)
+})
 
 const quickProcess = async (image: string) => {
   const resizeImage = async (filepath: string, maxSize: number | {maxWidth: number, maxHeight: number} = 2000) => {
@@ -206,30 +236,16 @@ ipcMain.handle("save-theme", (event, theme: string) => {
   store.set("theme", theme)
 })
 
-ipcMain.handle("install-update", async (event) => {
-  if (process.platform === "darwin") {
-    const update = await autoUpdater.checkForUpdates()
-    const url = `${pack.repository.url}/releases/download/v${update.updateInfo.version}/${update.updateInfo.files[0].url}`
-    await shell.openExternal(url)
-    app.quit()
-  } else {
-    await autoUpdater.downloadUpdate()
-    autoUpdater.quitAndInstall()
-  }
+ipcMain.handle("get-os", () => {
+  return store.get("os", "mac")
 })
 
-ipcMain.handle("check-for-updates", async (event, startup: boolean) => {
-  window?.webContents.send("close-all-dialogs", "version")
-  const update = await autoUpdater.checkForUpdates()
-  const newVersion = update.updateInfo.version
-  if (pack.version === newVersion) {
-    if (!startup) window?.webContents.send("show-version-dialog", null)
-  } else {
-    window?.webContents.send("show-version-dialog", newVersion)
-  }
+ipcMain.handle("save-os", (event, os: string) => {
+  store.set("os", os)
 })
 
-ipcMain.handle("open-location", async (event, location: string) => {
+ipcMain.handle("open-location", async (event, location: string, create?: boolean) => {
+  if (create && !fs.existsSync(location)) fs.mkdirSync(location, {recursive: true})
   if (!fs.existsSync(location)) return
   if (fs.statSync(location).isDirectory()) {
     shell.openPath(path.normalize(location))
@@ -267,9 +283,9 @@ ipcMain.handle("delete-conversion", async (event, id: number, frames: boolean) =
         if (match) {
           let newFrameDest = `${path.dirname(source)}/${path.basename(source, path.extname(source))}Frames${match}`
           if (type === "pdf") newFrameDest = `${path.dirname(dest)}/${path.basename(dest, path.extname(dest))}${match}`
-          fs.existsSync(newFrameDest) ? functions.removeDirectory(newFrameDest) : (fs.existsSync(frameDest) ? functions.removeDirectory(frameDest) : null)
+          fs.existsSync(newFrameDest) ? mainFunctions.removeDirectory(newFrameDest) : (fs.existsSync(frameDest) ? mainFunctions.removeDirectory(frameDest) : null)
         } else {
-          if (fs.existsSync(frameDest)) functions.removeDirectory(frameDest)
+          if (fs.existsSync(frameDest)) mainFunctions.removeDirectory(frameDest)
         }
       }
       let counter = 1
@@ -369,7 +385,7 @@ const upscale = async (info: any) => {
   }
   let dest = waifu2x.parseDest(info.source, info.dest, options)
   const duplicate = active.find((a) => a.dest === dest)
-  if (!overwrite && (fs.existsSync(dest) || duplicate)) dest = functions.newDest(dest, active)
+  if (!overwrite && (fs.existsSync(dest) || duplicate)) dest = mainFunctions.newDest(dest, active)
   dest = dest.replace(/\\/g, "/")
   const action = (percent?: number) => {
     const index = active.findIndex((e) => e.id === info.id)
@@ -472,7 +488,6 @@ const upscale = async (info: any) => {
       outputImage = dimensions.image
     }
   } catch (error) {
-      window?.webContents.send("debug", error)
       console.log(error)
       output = dest
   }
@@ -538,6 +553,10 @@ ipcMain.handle("get-dimensions", async (event, path: string, type: string, optio
     const dimensions = await sharp(fs.readFileSync(path), {limitInputPixels: false}).metadata()
     return {width: dimensions.width, height: dimensions.height}
   }
+})
+
+ipcMain.handle("get-type", async (event, path: string) => {
+  return mainFunctions.getType(path)
 })
 
 ipcMain.handle("get-python-models", (event) => {
@@ -608,14 +627,15 @@ if (!singleLock) {
   })
 
   app.on("ready", () => {
-    window = new BrowserWindow({width: 800, height: 600, minWidth: 720, minHeight: 450, frame: false, backgroundColor: "#5ea8da", center: true, roundedCorners: false, webPreferences: {nodeIntegration: true, contextIsolation: false}})
-    window.loadFile(path.join(__dirname, "index.html"))
+    window = new BrowserWindow({width: 800, height: 600, minWidth: 720, minHeight: 450, frame: false, 
+      backgroundColor: "#5ea8da", center: true, webPreferences: {
+      preload: path.join(__dirname, "../preload/index.js")}})
+    window.loadFile(path.join(__dirname, "../renderer/index.html"))
     window.removeMenu()
     if (process.platform !== "win32") {
-      if (ffmpegPath) fs.chmodSync(ffmpegPath, "777")
-      waifu2x.chmod777(waifu2xPath, webpPath, esrganPath, cuganPath, anime4kPath, rifePath)
+      //if (ffmpegPath) fs.chmodSync(ffmpegPath, "777")
+      //waifu2x.chmod777(waifu2xPath, webpPath, esrganPath, cuganPath, anime4kPath, rifePath)
     }
-    require("@electron/remote/main").enable(window.webContents)
     window.on("closed", () => {
       window = null
     })

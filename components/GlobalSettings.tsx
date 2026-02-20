@@ -1,21 +1,16 @@
-import {ipcRenderer} from "electron"
-import React, {useContext, useEffect, useState} from "react"
+import React, {useEffect} from "react"
+import {useUpscaleActions, useUpscaleSelector} from "../store"
 import {Dropdown, DropdownButton} from "react-bootstrap"
 import checkboxChecked from "../assets/icons/checkbox-checked.png"
 import checkbox from "../assets/icons/checkbox.png"
-import {ModeContext, NoiseContext, ReverseContext, ScaleContext, SpeedContext, FPSMultiplierContext} from "../renderer"
-import "../styles/globalsettings.less"
+import "./styles/globalsettings.less"
 
-const DirectoryBar: React.FunctionComponent = (props) => {
-    const {noise, setNoise} = useContext(NoiseContext)
-    const {scale, setScale} = useContext(ScaleContext)
-    const {speed, setSpeed} = useContext(SpeedContext)
-    const {reverse, setReverse} = useContext(ReverseContext)
-    const {mode, setMode} = useContext(ModeContext)
-    const {fpsMultiplier, setFPSMultiplier} = useContext(FPSMultiplierContext)
+const DirectoryBar: React.FunctionComponent = () => {
+    const {noise, scale, speed, reverse, mode, fpsMultiplier} = useUpscaleSelector()
+    const {setNoise, setScale, setSpeed, setReverse, setFPSMultiplier} = useUpscaleActions()
 
     useEffect(() => {
-        ipcRenderer.invoke("store-settings", {noise, scale, speed, reverse, mode, fpsMultiplier})
+        window.ipcRenderer.invoke("store-settings", {noise, scale, speed, reverse, mode, fpsMultiplier})
     })
 
     const handleNoise = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,15 +23,17 @@ const DirectoryBar: React.FunctionComponent = (props) => {
 
     const handleNoiseKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setNoise((prev: any) => {
-                if (Number(prev) + 1 > 3) return Number(prev)
-                return Number(prev) + 1
-            })
+            const getNewNoise = () => {
+                if (Number(noise) + 1 > 3) return Number(noise)
+                return Number(noise) + 1
+            }
+            setNoise(String(getNewNoise()))
         } else if (event.key === "ArrowDown") {
-            setNoise((prev: any) => {
-                if (Number(prev) - 1 < -1) return Number(prev)
-                return Number(prev) - 1
-            })
+            const getNewNoise = () => {
+                if (Number(noise) - 1 < -1) return Number(noise)
+                return Number(noise) - 1
+            }
+            setNoise(String(getNewNoise()))
         }
     }
 
@@ -49,17 +46,19 @@ const DirectoryBar: React.FunctionComponent = (props) => {
 
     const handleScaleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setScale((prev: any) => {
-                if (Number(prev) + 1 > 99) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) + 1).toFixed(1)
-                return Number(prev) + 1
-            })
+            const getNewScale = () => {
+                if (Number(scale) + 1 > 99) return Number(scale)
+                if (String(scale).includes(".")) return (Number(scale) + 1).toFixed(1)
+                return Number(scale) + 1
+            }
+            setScale(String(getNewScale()))
         } else if (event.key === "ArrowDown") {
-            setScale((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) - 1).toFixed(1)
-                return Number(prev) - 1
-            })
+            const getNewScale = () => {
+                if (Number(scale) - 1 < 0) return Number(scale)
+                if (String(scale).includes(".")) return (Number(scale) - 1).toFixed(1)
+                return Number(scale) - 1
+            }
+            setScale(String(getNewScale()))
         }
     }
 
@@ -72,22 +71,24 @@ const DirectoryBar: React.FunctionComponent = (props) => {
 
     const handleSpeedKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "ArrowUp") {
-            setSpeed((prev: any) => {
-                if (Number(prev) + 1 > 99) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) + 1).toFixed(1)
-                return Number(prev) + 1
-            })
+            const getNewSpeed = () => {
+                if (Number(speed) + 1 > 99) return Number(speed)
+                if (String(speed).includes(".")) return (Number(speed) + 1).toFixed(1)
+                return Number(speed) + 1
+            }
+            setSpeed(String(getNewSpeed()))
         } else if (event.key === "ArrowDown") {
-            setSpeed((prev: any) => {
-                if (Number(prev) - 1 < 0) return Number(prev)
-                if (String(prev).includes(".")) return (Number(prev) - 1).toFixed(1)
-                return Number(prev) - 1
-            })
+            const getNewSpeed = () => {
+                if (Number(speed) - 1 < 0) return Number(speed)
+                if (String(speed).includes(".")) return (Number(speed) - 1).toFixed(1)
+                return Number(speed) - 1
+            }
+            setSpeed(String(getNewSpeed()))
         }
     }
 
     const handleReverse = () => {
-        setReverse((prev: any) => !prev)
+        setReverse(!reverse)
     }
 
     return (
@@ -100,14 +101,6 @@ const DirectoryBar: React.FunctionComponent = (props) => {
                 <p className="global-settings-text">Scale: </p>
                 <input className="global-settings-input" type="text" value={scale} onChange={handleScale} onKeyDown={handleScaleKey}/>
             </div>
-            {/* <div className="global-settings-box">
-                <p className="global-settings-text">Mode: </p>
-                <DropdownButton title={mode} drop="up">
-                    <Dropdown.Item active={mode === "noise"} onClick={() => setMode("noise")}>noise</Dropdown.Item>
-                    <Dropdown.Item active={mode === "scale"} onClick={() => setMode("scale")}>scale</Dropdown.Item>
-                    <Dropdown.Item active={mode === "noise-scale"} onClick={() => setMode("noise-scale")}>noise-scale</Dropdown.Item>
-                </DropdownButton>
-            </div> */}
             <div className="global-settings-box">
                 <p className="global-settings-text">Framerate: </p>
                 <DropdownButton title={`${fpsMultiplier}X`} drop="up">

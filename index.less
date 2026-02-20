@@ -1,27 +1,73 @@
-@import "assets/fonts/fira-sans.less";
-@import "assets/fonts/maven-pro.less";
-@import "assets/fonts/skranji.less";
-@import "assets/fonts/yusei-magic.less";
+@font-face {
+    font-family: "GenEi M Gothic v2";
+    src: url("assets/fonts/GenEiMGothic2-Medium.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Honoka Shin Antique-Kaku";
+    src: url("assets/fonts/Honoka-Shin-Antique-Kaku_M.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Tsunagi Gothic Black";
+    src: url("assets/fonts/TsunagiGothic.ttf") format("truetype");
+}
+
+@title-bar-height: 30px;
 
 :root {
-    --selection-color: #b5d7ff;
-    --bg-color: #5ea8da;
-    --title-color: #4d84d9;
-    --text-color: black;
-    --dir-color: #4985b4;
-    --dir-text: black;
-    --settings-color: #3e4cfa;
-    --settings-text: black;
-    --settings-revert: #473bf0;
-    --settings-revert-text: black;
-    --settings-ok: #355aff;
-    --settings-ok-text: black;
-    --version-color: #3a5eff;
-    --version-text: black;
-    --version-accept: #5142ff;
-    --version-accept-text: black;
-    --version-reject: #463bbe;
-    --version-reject-text: black;
+    --selectionColor: #b5d7ff;
+	--iconColor: #69e8ff;
+	--waifu2xColor: #00fdfd;
+	--closeButton: #499bff;
+	--minimizeButton: #39bdff;
+	--maximizeButton: #2edcff;
+	--navColor: #6eb2ff;
+	--background: #92dbff;
+	--textColor: #000;
+	--strokeColor: #000;
+	--textboxColor: #70b7de;
+	--startAllButton: #81a2ff;
+	--clearAllButton: #7595ff;
+	--contractButton: #538cff;
+	--arrowColor: #69ebff;
+	--locationButton: #509cff;
+	--trashButton: #518bff;
+	--itemBG: #78a2ff;
+	--itemStroke: #8dc8ff;
+	--stopButton: #688bff;
+	--finishedColor: #80ffdd;
+	--textColor2: #000;
+	--titleColor: #69ebff;
+	--checkboxColor: #4970ff;
+	--iconColor2: #59f;
+}
+
+.dark {
+	--iconColor: #67e3ff;
+	--waifu2xColor: #00fdfd;
+	--closeButton: #499bff;
+	--minimizeButton: #39bdff;
+	--maximizeButton: #2edcff;
+	--navColor: #1d2e4f;
+	--background: #0e1a30;
+	--textColor: #fff;
+	--strokeColor: #000;
+	--textboxColor: #1c3358;
+	--startAllButton: #81a2ff;
+	--clearAllButton: #7595ff;
+	--contractButton: #92d2ff;
+	--arrowColor: #93f1ff;
+	--locationButton: #92c5ff;
+	--trashButton: #4995ff;
+	--itemBG: #131f3a;
+	--itemStroke: #16223d;
+	--stopButton: #688bff;
+	--finishedColor: #80ffdd;
+	--textColor2: #000;
+	--titleColor: #71e3ff;
+	--checkboxColor: #4970ff;
+	--iconColor2: #6ec7ff;
 }
 
 * {
@@ -33,7 +79,7 @@
 }
 
 html, body {
-    background-color: var(--bg-color);
+    background-color: var(--background);
     overflow-x: hidden;
     overflow-y: hidden;
     height: 100%;
@@ -58,7 +104,6 @@ p {
 }
 
 .app {
-    -webkit-app-region: no-drag;
     animation: fadein 0.5s;
     display: flex;
     flex-direction: column;
@@ -68,7 +113,7 @@ p {
 }
 
 ::selection {
-    background-color: var(--selection-color);
+    background-color: var(--selectionColor);
     color: white;
 }
 

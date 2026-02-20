@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_NAME: Waifu2x-GUI
-  ARTIFACT_PREFIX: waifu2x-gui
+  APP_NAME: Waifu2x-Upscaler
+  ARTIFACT_PREFIX: waifu2x-upscaler
 
 permissions:
   contents: write

@@ -1,17 +1,16 @@
-import React, {useEffect, useState, useContext} from "react"
-import {AdvSettingsContext} from "../renderer"
+import React from "react"
 import logo from "../assets/icons/logo.png"
-import functions from "../structures/functions"
-import "../styles/logobar.less"
+import "./styles/logobar.less"
 
-const LogoBar: React.FunctionComponent = (props) => {
-    const {advSettings, setAdvSettings} = useContext(AdvSettingsContext)
+const LogoBar: React.FunctionComponent = () => {
+    const onMouseDown = () => {
+        window.ipcRenderer.send("moveWindow")
+    }
 
     return (
         <section className="logo-bar">
-            <div className="logo-bar-container">
+            <div className="logo-bar-container" onMouseDown={onMouseDown}>
                 <img src={logo} className="logo" width="418" height="118"/>
-                {!advSettings ? <div className="logo-bar-drag"></div> : null}
             </div>
         </section>
     )

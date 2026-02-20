@@ -1,10 +1,7 @@
-import {ipcRenderer} from "electron"
-import {shell} from "@electron/remote"
-import path from "path"
-import React, {useContext, useEffect, useRef, useState, useReducer} from "react"
+import React, {useEffect, useRef, useState, useReducer} from "react"
+import {useUpscaleSelector, useActionSelector} from "../store"
 import {ProgressBar} from "react-bootstrap"
 import pSBC from "shade-blend-color"
-import fs from "fs"
 import arrow from "../assets/icons/arrow.png"
 import closeContainerHover from "../assets/icons/closeContainer-hover.png"
 import closeContainer from "../assets/icons/closeContainer.png"
@@ -18,12 +15,9 @@ import stopButtonHover from "../assets/icons/stopButton-hover.png"
 import stopButton from "../assets/icons/stopButton.png"
 import trashButtonHover from "../assets/icons/trashButton-hover.png"
 import trashButton from "../assets/icons/trashButton.png"
-import {DirectoryContext, FramerateContext, SDColorSpaceContext, UpscalerContext, CompressContext, FPSMultiplierContext, PNGFramesContext,
-GIFQualityContext, GIFTransparencyContext, JPGQualityContext, ModeContext, NoiseContext, OriginalFramerateContext, ParallelFramesContext, PDFDownscaleContext,
-PitchContext, PNGCompressionContext, PreviewContext, RenameContext, ReverseContext, ScaleContext, SpeedContext, ThreadsContext, VideoQualityContext,
-PythonDownscaleContext} from "../renderer"
 import functions from "../structures/functions"
-import "../styles/filecontainer.less"
+import path from "path"
+import "./styles/filecontainer.less"
 
 interface FileContainerProps {
     id: number
@@ -42,31 +36,11 @@ let mouseStopped = false
 let timer = null as any
 
 const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileContainerProps) => {
-    const {directory} = useContext(DirectoryContext)
-    const {scale} = useContext(ScaleContext)
-    const {noise} = useContext(NoiseContext)
-    const {mode} = useContext(ModeContext)
-    const {fpsMultiplier, setFPSMultiplier} = useContext(FPSMultiplierContext)
-    const {speed} = useContext(SpeedContext)
-    const {reverse} = useContext(ReverseContext)
-    const {originalFramerate} = useContext(OriginalFramerateContext)
-    const {framerate} = useContext(FramerateContext)
-    const {videoQuality} = useContext(VideoQualityContext)
-    const {gifQuality} = useContext(GIFQualityContext)
-    const {pngCompression} = useContext(PNGCompressionContext)
-    const {jpgQuality} = useContext(JPGQualityContext)
-    const {parallelFrames} = useContext(ParallelFramesContext)
-    const {pythonDownscale} = useContext(PythonDownscaleContext)
-    const {threads} = useContext(ThreadsContext)
-    const {upscaler} = useContext(UpscalerContext)
-    const {compress} = useContext(CompressContext)
-    const {rename} = useContext(RenameContext)
-    const {pitch} = useContext(PitchContext)
-    const {sdColorSpace} = useContext(SDColorSpaceContext)
-    const {gifTransparency} = useContext(GIFTransparencyContext)
-    const {previewVisible} = useContext(PreviewContext)
-    const {pngFrames, setPNGFrames} = useContext(PNGFramesContext)
-    const {pdfDownscale, setPDFDownscale} = useContext(PDFDownscaleContext)
+    const {videoQuality, gifQuality, pngCompression, jpgQuality, parallelFrames, threads, 
+        rename, pitch, sdColorSpace, gifTransparency, upscaler, compress, pngFrames, pdfDownscale, 
+        pythonDownscale, fpsMultiplier, speed, scale, directory, noise, mode, reverse
+    } = useUpscaleSelector()
+    const {previewVisible} = useActionSelector()
     const [hover, setHover] = useState(false)
     const [hoverClose, setHoverClose] = useState(false)
     const [hoverLocation, setHoverLocation] = useState(false)
@@ -91,8 +65,8 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     const [drag, setDrag] = useState(false)
     const [showNew, setShowNew] = useState(false)
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0)
-    const progressBarRef = useRef(null) as React.RefObject<HTMLDivElement>
-    const fileContainerRef = useRef(null) as React.RefObject<HTMLElement>
+    const progressBarRef = useRef<HTMLDivElement>(null)
+    const fileContainerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const conversionStarted = (event: any, info: {id: number}) => {
@@ -140,22 +114,22 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
             clearTimeout(timer)
             timer =  setTimeout(() => {mouseStopped = true}, 200)
         }
-        ipcRenderer.on("conversion-started", conversionStarted)
-        ipcRenderer.on("conversion-progress", conversionProgress)
-        ipcRenderer.on("interpolation-progress", interpolationProgress)
-        ipcRenderer.on("conversion-finished", conversionFinished)
-        ipcRenderer.on("start-all", startAll)
-        ipcRenderer.on("clear-all", clearAll)
-        ipcRenderer.on("update-color", forceUpdate)
+        window.ipcRenderer.on("conversion-started", conversionStarted)
+        window.ipcRenderer.on("conversion-progress", conversionProgress)
+        window.ipcRenderer.on("interpolation-progress", interpolationProgress)
+        window.ipcRenderer.on("conversion-finished", conversionFinished)
+        window.ipcRenderer.on("start-all", startAll)
+        window.ipcRenderer.on("clear-all", clearAll)
+        window.ipcRenderer.on("update-color", forceUpdate)
         window.addEventListener("mousemove", checkMouseStop)
         return () => {
-            ipcRenderer.removeListener("conversion-started", conversionStarted)
-            ipcRenderer.removeListener("conversion-progress", conversionProgress)
-            ipcRenderer.removeListener("interpolation-progress", interpolationProgress)
-            ipcRenderer.removeListener("conversion-finished", conversionFinished)
-            ipcRenderer.removeListener("start-all", startAll)
-            ipcRenderer.removeListener("clear-all", clearAll)
-            ipcRenderer.removeListener("update-color", forceUpdate)
+            window.ipcRenderer.removeListener("conversion-started", conversionStarted)
+            window.ipcRenderer.removeListener("conversion-progress", conversionProgress)
+            window.ipcRenderer.removeListener("interpolation-progress", interpolationProgress)
+            window.ipcRenderer.removeListener("conversion-finished", conversionFinished)
+            window.ipcRenderer.removeListener("start-all", startAll)
+            window.ipcRenderer.removeListener("clear-all", clearAll)
+            window.ipcRenderer.removeListener("update-color", forceUpdate)
             window.removeEventListener("mousemove", checkMouseStop)
         }
     }, [])
@@ -172,7 +146,7 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
         setStartSignal(false)
         let fps = props.framerate! * fpsMultiplier
         const quality = props.type === "gif" ? gifQuality : videoQuality
-        ipcRenderer.invoke("upscale", {id: props.id, source: props.source, dest: directory, type: props.type, framerate: fps, pitch, scale, noise, 
+        window.ipcRenderer.invoke("upscale", {id: props.id, source: props.source, dest: directory, type: props.type, framerate: fps, pitch, scale, noise, 
         mode, fpsMultiplier, speed, reverse, quality, rename, pngCompression, jpgQuality, parallelFrames, threads, upscaler, compress, gifTransparency, 
         sdColorSpace, pngFrames, pdfDownscale, pythonDownscale}, startAll)
         setLockedStats({framerate: fps, noise, scale, mode, speed, reverse})
@@ -183,16 +157,16 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     }
 
     const closeConversion = () => {
-        ipcRenderer.invoke("move-queue", props.id)
-        if (!output) ipcRenderer.invoke("delete-conversion", props.id)
+        window.ipcRenderer.invoke("move-queue", props.id)
+        if (!output) window.ipcRenderer.invoke("delete-conversion", props.id)
         props.remove(props.id)
     }
 
     const deleteConversion = async () => {
         if (deleted) return
-        const success = await ipcRenderer.invoke("delete-conversion", props.id, true)
+        const success = await window.ipcRenderer.invoke("delete-conversion", props.id, true)
         if (success) {
-            ipcRenderer.invoke("move-queue")
+            window.ipcRenderer.invoke("move-queue")
             setDeleted(true)
         }
     }
@@ -200,9 +174,9 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     const stopConversion = async () => {
         if (stopped) return
         if (output || progress >= 99) return
-        const success = await ipcRenderer.invoke("stop-conversion", props.id)
+        const success = await window.ipcRenderer.invoke("stop-conversion", props.id)
         if (success) {
-            ipcRenderer.invoke("move-queue")
+            window.ipcRenderer.invoke("move-queue")
             setStopped(true)
         }
     }
@@ -215,7 +189,7 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
             const color = colors[Math.floor(Math.random() * colors.length)]
             setBackgroundColor(color)
         }
-        const theme = await ipcRenderer.invoke("get-theme")
+        const theme = await window.ipcRenderer.invoke("get-theme")
         if (theme === "light") {
             const text = fileContainerRef.current?.querySelectorAll(".file-text, .file-text-alt") as NodeListOf<HTMLElement>
             text.forEach((t) => {
@@ -303,10 +277,10 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
 
     const preview = (event: React.MouseEvent<HTMLElement>) => {
         const source = getSource()
-        if (event.ctrlKey) return ipcRenderer.invoke("add-file", source, props.id)
+        if (event.ctrlKey) return window.ipcRenderer.invoke("add-file", source, props.id)
         if (event.button === 2 && !drag) {
-            if (frame) return ipcRenderer.invoke("preview", frame, "image")
-            ipcRenderer.invoke("preview", source, props.type)
+            if (frame) return window.ipcRenderer.invoke("preview", frame, "image")
+            window.ipcRenderer.invoke("preview", source, props.type)
         }
     }
 
@@ -336,11 +310,10 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
 
     const openLocation = (direct?: boolean) => {
         const location = showNew ? output : props.source
-        if (!fs.existsSync(location)) return
         if (direct) {
-            shell.openPath(path.normalize(location))
+            window.shell.openPath(path.normalize(location))
         } else {
-            shell.showItemInFolder(path.normalize(location))
+            window.shell.showItemInFolder(path.normalize(location))
         }
     }
 
@@ -362,11 +335,11 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     const calcWidth = (final?: boolean) => {
         if (final) {
             if (props.type === "pdf" && pdfDownscale && Number(pdfDownscale) > 0) {
-                return Math.floor(((props.width / props.height) * pdfDownscale) * (started ? lockedStats.scale : scale))
+                return Math.floor(((props.width / props.height) * Number(pdfDownscale)) * (started ? lockedStats.scale : scale))
             }
             return Math.floor(props.width * (started ? lockedStats.scale : scale))
         } else {
-            if (props.type === "pdf" && pdfDownscale && Number(pdfDownscale) > 0) return Math.floor((props.width / props.height) * pdfDownscale)
+            if (props.type === "pdf" && pdfDownscale && Number(pdfDownscale) > 0) return Math.floor((props.width / props.height) * Number(pdfDownscale))
             return props.width
         }
     }
@@ -374,7 +347,7 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     const calcHeight = (final?: boolean) => {
         if (final) {
             if (props.type === "pdf" && pdfDownscale && Number(pdfDownscale) > 0) {
-                return Math.floor(pdfDownscale * (started ? lockedStats.scale : scale))
+                return Math.floor(Number(pdfDownscale) * (started ? lockedStats.scale : scale))
             }
             return Math.floor(props.height * (started ? lockedStats.scale : scale))
         } else {

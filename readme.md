@@ -1,11 +1,10 @@
-## Waifu2x GUI
+## Waifu2x Upscaler
 
 <img src="assets/images/readme.png">
 
-This is a GUI app that can upscale anime-styled images, gifs, and videos using waifu2x, Real-ESRGAN, or Real-CUGAN. It aims to be simple to use, but
-you can access more advanced settings in the top bar.
+This is an app that can upscale anime images, gifs, and videos using waifu2x, Real-ESRGAN, or Real-CUGAN. It aims to be simple to use. 
 
-Note: Upscaling videos and gifs will take a very long time without a high-end graphics card!
+Note: Upscaling videos and gifs will take a very long time without a high-end graphics card.
 
 ### Features:
 - Upscale and/or denoise images (png, jpg, webp, etc.)
@@ -49,24 +48,18 @@ Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaV
 
 ### Installation
 
-To install, download the latest installer from the [releases](https://github.com/Moebytes/Waifu2x-GUI/releases) tab. Updates can be installed automatically.
-
-Note: If you install it under `C:/Program Files` you might need to run it as administrator.
+Download from [releases](https://github.com/Moebytes/Waifu2x-Upscaler/releases.
 
 ### MacOS
 
 On MacOS unsigned applications won't open, run this to remove the quarantine flag.
 ```
-xattr -d com.apple.quarantine "/Applications/Waifu2x GUI.app"
+xattr -d com.apple.quarantine "/Applications/Waifu2x Upscaler.app"
 ```
-
-### Bugs and Requests
-
-Open an issue on my GitHub repository. I appreciate any requests, but I can't guarantee that I will fulfill all of them.
 
 ### Related/Credits
 
-- [my waifu2x npm module](https://github.com/Moebytes/waifu2x)
+- [my waifu2x module](https://github.com/Moebytes/waifu2x)
 - [waifu2x](https://github.com/nagadomi/waifu2x)
 - [real-esrgan](https://github.com/xinntao/Real-ESRGAN)
 - [real-cugan](https://github.com/bilibili/ailab)
