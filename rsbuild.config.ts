@@ -22,6 +22,7 @@ export default defineConfig({
 
             config.externals = {
                 "electron-click-drag-plugin": "commonjs electron-click-drag-plugin",
+                "@napi-rs/canvas": "commonjs @napi-rs/canvas",
                 "sharp": "commonjs sharp"
             }
 
