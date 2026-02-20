@@ -11,9 +11,8 @@
   },
   "keywords": [
     "waifu2x",
-    "GUI",
-    "anime",
-    "upscaling"
+    "upscaler",
+    "anime"
   ],
   "repository": {
     "type": "git",

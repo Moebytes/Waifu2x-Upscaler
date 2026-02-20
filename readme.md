@@ -42,7 +42,7 @@ pip3 install torch torchvision opencv-python Pillow numpy spandrel --compile --f
 
 ### Design
 
-Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaVu/Waifu2x-GUI
+Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaVu/Waifu2x-Upscaler
 
 *New design is wip
 
