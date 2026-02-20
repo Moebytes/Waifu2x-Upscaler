@@ -19,10 +19,11 @@ export default defineConfig({
             config.module = config.module || {}
             config.module.rules = config.module.rules || []
             config.externals = config.externals || {}
+            config.resolve.fallback = config.resolve.fallback || {}
+            config.resolve.fallback.canvas = false
 
             config.externals = {
                 "electron-click-drag-plugin": "commonjs electron-click-drag-plugin",
-                "@napi-rs/canvas": "commonjs @napi-rs/canvas",
                 "sharp": "commonjs sharp"
             }
 
