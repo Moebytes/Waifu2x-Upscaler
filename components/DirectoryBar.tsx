@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react"
 import {useUpscaleActions, useUpscaleSelector} from "../store"
-import folderButtonHover from "../assets/icons/folderButton-hover.png"
-import folderButton from "../assets/icons/folderButton.png"
-import sourceButtonHover from "../assets/icons/source-hover.png"
-import sourceButton from "../assets/icons/source.png"
+import FolderIcon from "../assets/svg/folder.svg"
+import SourceIcon from "../assets/svg/source.svg"
 import functions from "../structures/functions"
 import "./styles/directorybar.less"
 
@@ -74,8 +72,8 @@ const DirectoryBar: React.FunctionComponent = (props) => {
     return (
         <section className="directory-bar">
             <div className="directory-bar-center">
-                <img className="directory-bar-img" width="25" height="25"  src={sourceHover ? sourceButtonHover : sourceButton} onMouseEnter={() => setSourceHover(true)} onMouseLeave={() => setSourceHover(false)} onClick={sourceAction}/>
-                <img className="directory-bar-img" width="25" height="25" src={folderHover ? folderButtonHover : folderButton} onMouseEnter={() => setFolderHover(true)} onMouseLeave={() => setFolderHover(false)} onClick={changeDirectory}/>
+                <SourceIcon className="directory-bar-img" onClick={sourceAction}/>
+                <FolderIcon className="directory-bar-img" onClick={changeDirectory}/>
                 <input className="directory-bar-box" type="text" value={directory} onDoubleClick={openDirectory} onChange={updateDirectory}/>
             </div>
         </section>

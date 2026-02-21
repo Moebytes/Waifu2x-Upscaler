@@ -1,5 +1,5 @@
 import React from "react"
-import logo from "../assets/icons/logo.png"
+import logo from "../assets/images/logo.png"
 import "./styles/logobar.less"
 
 const LogoBar: React.FunctionComponent = () => {

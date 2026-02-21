@@ -1,11 +1,6 @@
 import React, {useEffect, useState} from "react"
 import {useDropzone} from "react-dropzone"
-import fileSelectorBG from "../assets/icons/fileSelector-bg.png"
-import fileSelectorTextDrag from "../assets/icons/fileSelector-text-drag.png"
-import fileSelectorText from "../assets/icons/fileSelector-text.png"
-import fileSelectorBGDark from "../assets/icons/fileSelector-bg-dark.png"
-import fileSelectorTextDragDark from "../assets/icons/fileSelector-text-drag-dark.png"
-import fileSelectorTextDark from "../assets/icons/fileSelector-text-dark.png"
+import FileSelectorIcon from "../assets/svg/file-selector.svg"
 import "./styles/fileselector.less"
 
 const FileSelector: React.FunctionComponent = (props) => {
@@ -83,8 +78,7 @@ const FileSelector: React.FunctionComponent = (props) => {
     return (
         <section className="file-selector" {...getRootProps()}>
             <div className="file-selector-img">
-                <img src={drag ? (color === "light" ? fileSelectorTextDrag : fileSelectorTextDragDark) : (color === "light" ? fileSelectorText : fileSelectorTextDark)} className="file-selector-img-text" width="442" height="121" style={{filter: setFilter ? "brightness(0) invert(1)" : ""}}/>
-                <img src={color === "light" ? fileSelectorBG : fileSelectorBGDark} className="file-selector-img-bg" width="442" height="121"/>
+                <FileSelectorIcon className="file-selector-img-text" style={{filter: setFilter ? "brightness(0) invert(1)" : ""}}/>
             </div>
             <div className="file-selector-hover" onClick={selectFiles} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}></div>
         </section>

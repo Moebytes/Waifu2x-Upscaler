@@ -10,8 +10,8 @@ const lightColorList = {
 	"--maximizeButton": "#2edcff",
 	"--navColor": "#6eb2ff",
 	"--background": "#92dbff",
-	"--textColor": "#000",
-	"--strokeColor": "#000",
+	"--textColor": "#000000",
+	"--strokeColor": "#000000",
 	"--textboxColor": "#70b7de",
 	"--startAllButton": "#81a2ff",
 	"--clearAllButton": "#7595ff",
@@ -23,10 +23,10 @@ const lightColorList = {
 	"--itemStroke": "#8dc8ff",
 	"--stopButton": "#688bff",
 	"--finishedColor": "#80ffdd",
-	"--textColor2": "#000",
+	"--textColor2": "#000000",
 	"--titleColor": "#69ebff",
 	"--checkboxColor": "#4970ff",
-	"--iconColor2": "#59f"
+	"--iconColor2": "#59f59f"
 }
 
 const darkColorList = {
@@ -37,8 +37,8 @@ const darkColorList = {
 	"--maximizeButton": "#2edcff",
 	"--navColor": "#1d2e4f",
 	"--background": "#0e1a30",
-	"--textColor": "#fff",
-	"--strokeColor": "#000",
+	"--textColor": "#ffffff",
+	"--strokeColor": "#000000",
 	"--textboxColor": "#1c3358",
 	"--startAllButton": "#81a2ff",
 	"--clearAllButton": "#7595ff",
@@ -50,7 +50,7 @@ const darkColorList = {
 	"--itemStroke": "#16223d",
 	"--stopButton": "#688bff",
 	"--finishedColor": "#80ffdd",
-	"--textColor2": "#000",
+	"--textColor2": "#000000",
 	"--titleColor": "#71e3ff",
 	"--checkboxColor": "#4970ff",
 	"--iconColor2": "#6ec7ff"

@@ -78,8 +78,9 @@ ipcMain.handle("maximize", (event) => {
     }
 })
 
-ipcMain.on("moveWindow", () => {
-  const handle = window?.getNativeWindowHandle()
+ipcMain.on("moveWindow", (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  const handle = win?.getNativeWindowHandle()
   if (!handle) return
   const windowID = process.platform === "linux" ? handle.readUInt32LE(0) : handle
   dragAddon.startDrag(windowID)

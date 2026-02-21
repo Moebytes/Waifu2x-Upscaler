@@ -1,8 +1,8 @@
 import React, {useEffect} from "react"
 import {useUpscaleActions, useUpscaleSelector} from "../store"
 import {Dropdown, DropdownButton} from "react-bootstrap"
-import checkboxChecked from "../assets/icons/checkbox-checked.png"
-import checkbox from "../assets/icons/checkbox.png"
+import CheckboxIcon from "../assets/svg/checkbox.svg"
+import CheckboxCheckedIcon from "../assets/svg/checkbox-checked.svg"
 import "./styles/globalsettings.less"
 
 const DirectoryBar: React.FunctionComponent = () => {
@@ -116,7 +116,9 @@ const DirectoryBar: React.FunctionComponent = () => {
             </div>
             <div className="global-settings-box">
                 <p className="global-settings-text">Reverse: </p>
-                <img className="global-settings-checkbox" width="20" height="20" src={reverse ? checkboxChecked : checkbox} onClick={handleReverse}/>
+                {reverse ? 
+                <CheckboxCheckedIcon className="global-settings-checkbox" onClick={handleReverse}/> :
+                <CheckboxIcon className="global-settings-checkbox" onClick={handleReverse}/>}
             </div>
         </section>
     )

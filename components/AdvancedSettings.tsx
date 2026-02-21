@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import {useUpscaleSelector, useUpscaleActions, useActionSelector, useActionActions} from "../store"
-import checkboxChecked from "../assets/icons/checkbox2-checked.png"
-import checkbox from "../assets/icons/checkbox2.png"
+import CheckboxIcon from "../assets/svg/checkbox.svg"
+import CheckboxCheckedIcon from "../assets/svg/checkbox-checked.svg"
 import {Dropdown, DropdownButton} from "react-bootstrap"
 import path from "path"
 import "./styles/advancedsettings.less"
@@ -371,11 +371,15 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">Pitch Audio? </p>
-                            <img src={pitch ? checkboxChecked : checkbox} onClick={() => setPitch(!pitch)} className="settings-checkbox"/>
+                            {pitch ? 
+                            <CheckboxCheckedIcon className="settings-checkbox" onClick={() => setPitch(!pitch)}/> :
+                            <CheckboxIcon className="settings-checkbox" onClick={() => setPitch(!pitch)}/>}
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">SD Colorspace? </p>
-                            <img src={sdColorSpace ? checkboxChecked : checkbox} onClick={() => setSDColorSpace(!sdColorSpace)} className="settings-checkbox"/>
+                            {sdColorSpace ? 
+                            <CheckboxCheckedIcon className="settings-checkbox" onClick={() => setSDColorSpace(!sdColorSpace)}/> :
+                            <CheckboxIcon className="settings-checkbox" onClick={() => setSDColorSpace(!sdColorSpace)}/>}
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">Video Quality: </p>
@@ -383,7 +387,9 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">GIF Transparency? </p>
-                            <img src={gifTransparency ? checkboxChecked : checkbox} onClick={() => setGIFTransparency(!gifTransparency)} className="settings-checkbox"/>
+                            {gifTransparency ? 
+                            <CheckboxCheckedIcon className="settings-checkbox" onClick={() => setGIFTransparency(!gifTransparency)}/> :
+                            <CheckboxIcon className="settings-checkbox" onClick={() => setGIFTransparency(!gifTransparency)}/>}
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">GIF Quality: </p>
@@ -399,11 +405,15 @@ const AdvancedSettings: React.FunctionComponent = (props) => {
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">Compress to JPG? </p>
-                            <img src={compress ? checkboxChecked : checkbox} onClick={() => setCompress(!compress)} className="settings-checkbox"/>
+                            {compress ? 
+                            <CheckboxCheckedIcon className="settings-checkbox" onClick={() => setCompress(!compress)}/> :
+                            <CheckboxIcon className="settings-checkbox" onClick={() => setCompress(!compress)}/>}
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">PNG Frames? </p>
-                            <img src={pngFrames ? checkboxChecked : checkbox} onClick={() => setPNGFrames(!pngFrames)} className="settings-checkbox"/>
+                            {pngFrames ? 
+                            <CheckboxCheckedIcon className="settings-checkbox" onClick={() => setPNGFrames(!pngFrames)}/> :
+                            <CheckboxIcon className="settings-checkbox" onClick={() => setPNGFrames(!pngFrames)}/>}
                         </div>
                         <div className="settings-row">
                             <p className="settings-text">PDF Downscale: </p>
